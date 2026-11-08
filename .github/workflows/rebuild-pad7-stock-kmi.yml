@@ -1,0 +1,32 @@
+name: Rebuild Pad 7 Kernel with Stock KMI Version
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/rebuild-pad7-stock-kmi.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request stock-version 6.1.138 KernelSU Next SUSFS build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run main.yml -R "${GITHUB_REPOSITORY}" --ref main \
+            -f release_type=CI \
+            -f kernel_build_version=6.1.x-android14 \
+            -f os_patch_level=2025-06 \
+            -f page_size=4k \
+            -f 'brand_name=' \
+            -f keep_kmi=true \
+            -f commit_mode=verified \
+            -f root_flavor=KernelSU-Next \
+            -f use_susfs=true \
+            -f use_nomount=true
+          echo "Stock-version rebuild request accepted"
