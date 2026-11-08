@@ -18,13 +18,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run cancel 42445341667 -R "${GITHUB_REPOSITORY}" || true
           gh workflow run main.yml -R "${GITHUB_REPOSITORY}" --ref main \
             -f release_type=CI \
             -f kernel_build_version=6.1.x-android14 \
             -f os_patch_level=2025-06 \
             -f page_size=4k \
-            -f 'brand_name=' \
+            -f brand_name=__STOCK__ \
             -f keep_kmi=true \
             -f commit_mode=verified \
             -f root_flavor=KernelSU-Next \
