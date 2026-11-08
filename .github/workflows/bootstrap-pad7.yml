@@ -23,7 +23,7 @@ jobs:
           set -euo pipefail
           git clone --quiet https://github.com/WildKernels/GKI_KernelSU_SUSFS.git /tmp/wildkernels
           git -C /tmp/wildkernels checkout --quiet c6d44eb9110888ad0cbc8e172d0d64eaa7df3e1e
-          rsync -a --exclude='.git' --exclude='.github/workflows/opencode.yml' /tmp/wildkernels/ ./
+          rsync -a --exclude='.git' --exclude='.github/workflows' /tmp/wildkernels/ ./
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
