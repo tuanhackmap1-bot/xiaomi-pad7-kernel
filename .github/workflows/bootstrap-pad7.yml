@@ -1,0 +1,60 @@
+name: Bootstrap Xiaomi Pad 7 KernelSU Next SUSFS
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-pad7.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  prepare-and-launch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Xiaomi Pad 7 build repository
+        uses: actions/checkout@v4
+
+      - name: Import pinned WildKernels build workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet https://github.com/WildKernels/GKI_KernelSU_SUSFS.git /tmp/wildkernels
+          git -C /tmp/wildkernels checkout --quiet c6d44eb9110888ad0cbc8e172d0d64eaa7df3e1e
+          rsync -a --exclude='.git' --exclude='.github/workflows/opencode.yml' /tmp/wildkernels/ ./
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Import WildKernels GKI build at pinned upstream revision"
+            git push origin HEAD:main
+          fi
+
+      - name: Dispatch 6.1.138 Android 14 4K KernelSU Next SUSFS build
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for try in 1 2 3 4 5 6; do
+            if gh workflow run main.yml -R "${GITHUB_REPOSITORY}" --ref main \
+                -f release_type=CI \
+                -f kernel_build_version=6.1.x-android14 \
+                -f os_patch_level=2025-06 \
+                -f page_size=4k \
+                -f brand_name=VTUAN \
+                -f commit_mode=verified \
+                -f root_flavor=KernelSU-Next \
+                -f keep_kmi=true \
+                -f use_susfs=true \
+                -f use_nomount=true; then
+              echo "Build request accepted"
+              exit 0
+            fi
+            echo "Workflow not registered yet (attempt ${try}/6)"
+            sleep 10
+          done
+          echo "Could not dispatch build workflow" >&2
+          exit 1
