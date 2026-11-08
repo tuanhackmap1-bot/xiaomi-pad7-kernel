@@ -38,7 +38,7 @@ runs:
         BRAND="${{ inputs.brand_name }}"
         KEEP_KMI="${{ inputs.keep_kmi }}"
 
-        if [ -z "$BRAND" ]; then
+        if [ -z "$BRAND" ] || [ "$BRAND" = "__STOCK__" ]; then
           echo "brand_name is empty, keeping stock kernel version string"
           exit 0
         fi
